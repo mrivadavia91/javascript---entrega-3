@@ -1,0 +1,17 @@
+[
+    {
+      "name": "Aritos",
+      "price": 2000,
+      "image": "imagen"
+    },
+    {
+      "name": "Anillos",
+      "price": 3000,
+      "image": ""
+    },
+    {
+      "name": "Pulseras",
+      "price": 5000,
+      "image": ""
+    }
+  ]
