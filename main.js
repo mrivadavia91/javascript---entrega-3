@@ -3,12 +3,13 @@ let total = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
   const showCartBtn = document.getElementById("showCartBtn");
-  const cartDiv = document.getElementById("cart");
-  const productsContainer = document.getElementById("products");
 
   showCartBtn.addEventListener("click", function() {
     showCart();
   });
+
+  const cartDiv = document.getElementById("cart");
+  const productsContainer = document.getElementById("products");
 
   // Cargar carrito desde el localStorage, si existe
   if (localStorage.getItem("cart")) {
@@ -17,13 +18,11 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   fetch("products.json")
-    .then(response => response.json())
-    .then(products => {
-      products.forEach(product => {
-        const productDiv = createProductElement(product);
-        productsContainer.appendChild(productDiv);
-      });
-    });
+  .then(response => response.json())
+  .then(products => {
+    const productDivs = products.map(product => createProductElement(product));
+    productsContainer.append(...productDivs);
+  });
 
   function createProductElement(product) {
     const productDiv = document.createElement("div");
@@ -55,8 +54,10 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function updateCart() {
+    const cartButton = document.getElementById("showCartBtn");
+    cartButton.textContent = `Carrito (${cart.length})`;
     cartDiv.innerHTML = "";
-    cart.forEach(product => {
+    cart.map(product => {
       const item = document.createElement("div");
       item.textContent = `${product.name} - Precio: $${product.price}`;
       cartDiv.appendChild(item);
@@ -65,27 +66,61 @@ document.addEventListener("DOMContentLoaded", function() {
     totalItem.textContent = `Total: $${total}`;
     cartDiv.appendChild(totalItem);
   }
-  
 
   function showCart() {
-    cartDiv.style.display = "block";
-    showCartBtn.style.display = "none";
-    const finishButton = document.createElement("button");
-    finishButton.textContent = "Finalizar Compra";
-    finishButton.addEventListener("click", function() {
-      finishPurchase();
+    let tablaHTML = `
+      <table style="width:100%; text-align:left; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="border-bottom: 1px solid #ddd; padding: 8px;">Producto</th>
+            <th style="border-bottom: 1px solid #ddd; padding: 8px;">Precio</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    cart.forEach(product => {
+      tablaHTML += `
+        <tr>
+          <td style="border-bottom: 1px solid #ddd; padding: 8px;">${product.name}</td>
+          <td style="border-bottom: 1px solid #ddd; padding: 8px;">$${product.price}</td>
+        </tr>`;
     });
-    cartDiv.appendChild(finishButton);
+
+    tablaHTML += `
+        </tbody>
+      </table>
+      <div style="margin-top: 10px; font-weight: bold;">Total: $${total}</div>`;
+
+    Swal.fire({
+      title: 'Carrito de Compras',
+      html: tablaHTML,
+      showCancelButton: true,
+      confirmButtonText: 'Finalizar Compra',
+      cancelButtonText: 'Seguir Comprando'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        finishPurchase();
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        // Aquí puedes cerrar el modal y permitir al usuario seguir comprando
+        console.log('Seguir comprando');
+      }
+    });
   }
 
   function finishPurchase() {
-    alert(`Compra realizada. Total: $${total}`);
-    cart = [];
-    total = 0;
-    updateCart();
-    cartDiv.style.display = "none";
-    // Limpiar el localStorage al finalizar la compra
-    localStorage.removeItem("cart");
+    Swal.fire({
+      title: 'Compra realizada',
+      text: `Total: $${total}`,
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    }).then(() => {
+      cart = [];
+      total = 0;
+      updateCart();
+      cartDiv.style.display = "none";
+      // Limpiar el localStorage al finalizar la compra
+      localStorage.removeItem("cart");
+    });
   }
 
   function saveCart() {

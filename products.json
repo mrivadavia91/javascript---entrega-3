@@ -2,16 +2,16 @@
     {
       "name": "Aritos",
       "price": 2000,
-      "image": "imagen"
+      "image": "../image/arito.webp"
     },
     {
       "name": "Anillos",
       "price": 3000,
-      "image": ""
+      "image": "../image/anillo.webp"
     },
     {
       "name": "Pulseras",
       "price": 5000,
-      "image": ""
+      "image": "../image/pulsera.webp"
     }
   ]
